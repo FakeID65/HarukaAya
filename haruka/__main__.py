@@ -167,7 +167,11 @@ def control_panel(bot, update):
     #Support to run from command handler
     query = update.callback_query
     if query:
-        query.message.delete()
+
+        try:
+           query.message.delete()
+        except BadRequest as ee:
+           update.effective_message.reply_text(f"Failed to delete query, {ee}")
 
         M_match = re.match(r"cntrl_panel_M", query.data)
         U_match = re.match(r"cntrl_panel_U", query.data)
@@ -284,7 +288,7 @@ def control_panel(bot, update):
                                                         chat=chat_id)))
 
         elif back_match:
-            text = "Test"
+            text = "Control Panel :3"
             query.message.reply_text(text=text, parse_mode=ParseMode.MARKDOWN,
                 reply_markup=InlineKeyboardMarkup(paginate_modules(user.id, 0, CHAT_SETTINGS, "cntrl_panel_G")))
 
@@ -607,7 +611,11 @@ def process_update(self, update):
 
     if update.effective_chat: #Checks if update contains chat object
         now = datetime.datetime.utcnow()
+    try:
         cnt = CHATS_CNT.get(update.effective_chat.id, 0)
+    except AttributeError:
+        self.logger.exception('An uncaught error was raised while updating process')
+        return
 
         t = CHATS_TIME.get(update.effective_chat.id, datetime.datetime(1970, 1, 1))
         if t and now > t + datetime.timedelta(0, 1):

@@ -26,20 +26,11 @@ def purge(bot: Bot, update: Update, args: List[str]) -> str:
         if can_delete(chat, bot.id):
             message_id = msg.reply_to_message.message_id
             delete_to = msg.message_id - 1
-            if args and args[0].isdigit():
-                new_del = message_id + int(args[0])
-                # No point deleting messages which haven't been written yet.
-                if new_del < delete_to:
-                    delete_to = new_del
 
             for m_id in range(delete_to, message_id - 1, -1):  # Reverse iteration over message ids
                 try:
                     bot.deleteMessage(chat.id, m_id)
-                except BadRequest as err:
-                    if err.message == "Message can't be deleted":
-                        LOGGER.exception("Error while purging chat messages.")
-
-                    elif err.message != "Message to delete not found":
+                except BadRequest:
                         LOGGER.exception("Error while purging chat messages.")
 
             try:
@@ -92,7 +83,6 @@ Need to delete lots of messages? That's what purges are for!
 
 Available commands are:
  - /purge: deletes all messages from the message you replied to, to the current message.
- - /purge X: deletes X messages after the message you replied to (including the replied message)
  - /del: deletes the message you replied to.
 """
 
